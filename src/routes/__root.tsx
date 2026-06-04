@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -11,6 +12,10 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { Toaster } from "@/components/ui/sonner";
+
 
 function NotFoundComponent() {
   return (
@@ -118,8 +123,37 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <AppLayout />
+      <Toaster richColors position="top-right" />
     </QueryClientProvider>
   );
 }
+
+function AppLayout() {
+  const pathname = useRouterState({ select: (r) => r.location.pathname });
+  const isApiRoute = pathname.startsWith("/api/");
+
+  if (isApiRoute) return <Outlet />;
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <AppSidebar />
+        <div className="flex flex-1 flex-col">
+          <header className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b bg-background/80 px-4 backdrop-blur">
+            <SidebarTrigger />
+            <div className="ml-2 text-sm font-medium text-muted-foreground">
+              AI Workplace Productivity Assistant
+            </div>
+          </header>
+          <main className="flex-1 p-4 md:p-8">
+            <div className="mx-auto w-full max-w-6xl space-y-6">
+              <Outlet />
+            </div>
+          </main>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
+}
+
