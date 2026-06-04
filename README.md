@@ -1,4 +1,4 @@
-# Project Name
+# AI-Productivity-Assistant
 
 ## Project Overview
 
